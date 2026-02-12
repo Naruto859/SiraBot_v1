@@ -9,7 +9,7 @@
  * Backed by persistent JSON storage and node-cron runner.
  */
 
-import cron from "node-cron";
+import { Cron } from "croner";
 import {
     addTask,
     listTasks,
@@ -75,7 +75,11 @@ export async function schedule_task(
         };
     }
 
-    if (!cron.validate(cronExpression.trim())) {
+    try {
+        // Croner validates on construction; dispose immediately.
+        const test = new Cron(cronExpression.trim());
+        test.stop();
+    } catch {
         return {
             success: false,
             message: `Invalid cron expression: "${cronExpression}". ` +

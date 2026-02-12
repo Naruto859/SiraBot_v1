@@ -7,7 +7,7 @@
  */
 
 import { EventEmitter } from "node:events";
-import cron from "node-cron";
+import { Cron } from "croner";
 import { loadTasks, updateTask, resolveStorePath } from "./scheduler-store.js";
 import type { ScheduledTask } from "./types.js";
 
@@ -18,7 +18,7 @@ export type SchedulerEvent = {
 };
 
 export class SchedulerRunner extends EventEmitter {
-    private jobs = new Map<string, cron.ScheduledTask>();
+    private jobs = new Map<string, Cron>();
     private storePath: string;
     private started = false;
 
@@ -75,17 +75,18 @@ export class SchedulerRunner extends EventEmitter {
                 continue;
             }
 
-            if (!cron.validate(task.cron)) {
+            let job: Cron;
+            try {
+                job = new Cron(task.cron, async () => {
+                    await this.executeTask(task);
+                });
+            } catch {
                 // eslint-disable-next-line no-console
                 console.warn(
                     `[scheduler] Invalid cron expression for task ${task.id}: "${task.cron}" — skipping`,
                 );
                 continue;
             }
-
-            const job = cron.schedule(task.cron, async () => {
-                await this.executeTask(task);
-            });
 
             this.jobs.set(task.id, job);
         }

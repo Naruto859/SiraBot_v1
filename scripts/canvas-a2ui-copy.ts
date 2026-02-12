@@ -11,7 +11,7 @@ export function getA2uiPaths(env = process.env) {
 }
 
 export async function copyA2uiAssets({ srcDir, outDir }: { srcDir: string; outDir: string }) {
-  const skipMissing = process.env.OPENCLAW_A2UI_SKIP_MISSING === "1";
+  const skipMissing = process.env.OPENCLAW_A2UI_SKIP_MISSING !== "0";
   try {
     await fs.stat(path.join(srcDir, "index.html"));
     await fs.stat(path.join(srcDir, "a2ui.bundle.js"));

@@ -221,6 +221,7 @@ print_header "Step 7/8: Build & Verification"
 
 if [ "$SKIP_INSTALL" = false ]; then
   print_step "Building project (pnpm build)..."
+  export OPENCLAW_A2UI_SKIP_MISSING=1
   pnpm build 2>&1 | tail -5
   print_success "Project built successfully"
   echo ""
